@@ -37,3 +37,9 @@ A prefix prepended to your snapshot. The suffix will be the date using
 
 The zfs command to use. Useful if you need `sudo` or if the `zfs`
 command is not in your `PATH` environment variable.
+
+# Cron setup
+
+The easiest way to set the cron job is to put this script in
+`/etc/cron.hourly` to get snapshots every hour. You can of course use
+a cron script in `/etc/cron.d` or any `crontab` to get more control.
