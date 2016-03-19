@@ -1,0 +1,62 @@
+#!/bin/bash
+# zfssnap is a tool to automate zfs snapshot and is supposed to be run in a cron job
+# Copyright (C) 2016  Michaël Hauspie <michael.hauspie@univ-lille1.fr>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Configuration Variables.
+# ------------------------
+# You should use /etc/zfssnaprc or $HOME/.zfssnaprc to change the
+# values, not edit this file
+
+# How many snapshot should be kept.  Older snapshots will be deleted
+# so that $SNAP_KEP_COUNT snapshots left AFTER executing the current
+# snapshot
+SNAP_KEPT_COUNT=3
+# The name of the dataset to snap
+SNAP_DATASET="rpool"
+# Should the snapshot be recursive (-r option of zfs utility)
+SNAP_RECURSIVE="yes"
+# A prefix prepended to your snapshot. The suffix will be the date using YY-MM-DD-HH:MM:SS format
+SNAP_PREFIX="auto-"
+# The zfs command to use. Useful if you need sudo or are not using standard path
+SNAP_ZFS_CMD="/usr/bin/zfs"
+
+
+
+#####################################################
+# Main code
+
+for rcfile in "/etc/zfssnaprc" "$HOME/.zfssnaprc"
+do
+    test -f "$rcfile" && . "$rcfile"
+done
+
+ZFS_OPTS=""
+if [ "$SNAP_RECURSIVE" = "yes" ]
+then
+    ZFS_OPTS="-r"
+fi
+
+# First remove old snapshots
+SNAPS=`$SNAP_ZFS_CMD list -t snapshot -o name | egrep "^${SNAP_DATASET}@${SNAP_PREFIX}" | sort -r | tail -n +$SNAP_KEPT_COUNT`
+for snap in $SNAPS
+do
+    $SNAP_ZFS_CMD destroy "$snap" -r
+done
+
+
+# Create snapshot
+SNAP_NAME="${SNAP_PREFIX}`date +%F-%T`"
+$SNAP_ZFS_CMD snapshot $ZFS_OPTS "${SNAP_DATASET}@${SNAP_NAME}"
