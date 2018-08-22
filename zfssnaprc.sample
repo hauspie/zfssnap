@@ -1,0 +1,22 @@
+# Configuration Variables.
+
+# How many snapshot should be kept.  Older snapshots will be deleted
+# so that `$SNAP_KEP_COUNT` snapshots left **AFTER** executing the current
+# snapshot.
+# SNAP_KEPT_COUNT=3
+
+# The name of the dataset to snap.
+# SNAP_DATASET="rpool"
+
+# Should the snapshot be recursive (-r option of zfs utility). The
+# script test for `yes` value. Any other value will result in non
+# recursive snapshot
+# SNAP_RECURSIVE="yes"
+
+# A prefix prepended to your snapshot. The suffix will be the date using
+# `YY-MM-DD-HH:MM:SS` format
+# SNAP_PREFIX="auto-"
+
+# The zfs command to use. Useful if you need `sudo` or if the `zfs`
+# command is not in your `PATH` environment variable.
+# SNAP_ZFS_CMD="/usr/bin/zfs"
